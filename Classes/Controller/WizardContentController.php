@@ -53,6 +53,14 @@ class WizardContentController extends \MASK\Mask\Controller\WizardController
     protected $iconRepository;
 
     /**
+     * ExportImportService
+     *
+     * @var \MASK\Mask\Domain\Service\ExportImportService
+     * @inject
+     */
+    protected $exportImportService;
+
+    /**
      * action list
      *
      * @return void
@@ -172,5 +180,23 @@ class WizardContentController extends \MASK\Mask\Controller\WizardController
         $this->generateAction();
         $this->addFlashMessage(\TYPO3\CMS\Extbase\Utility\LocalizationUtility::translate('tx_mask.content.activatedcontentelement', 'mask'));
         $this->redirect('list');
+    }
+
+    /**
+     * action export
+     *
+     * @param string $key
+     * @return void
+     */
+    public function exportAction($key)
+    {
+        $zipName = $key."_".time().".zip";
+        $zip = $this->exportImportService->getZippedElement($key, $zipName);
+
+        // Then download the zipped file
+//        header('Content-Type: application/zip');
+//        header('Content-disposition: attachment; filename=' . $zipName);
+//        header('Content-Length: ' . filesize($zipName));
+//        readfile($zipName);
     }
 }

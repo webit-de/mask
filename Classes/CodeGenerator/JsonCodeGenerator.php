@@ -34,5 +34,36 @@ namespace MASK\Mask\CodeGenerator;
  */
 class JsonCodeGenerator extends \MASK\Mask\CodeGenerator\AbstractCodeGenerator
 {
-    //put your code here
+
+    protected $storageRepository;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->storageRepository = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('MASK\\Mask\\Domain\\Repository\\StorageRepository');
+    }
+
+    public function getElementJson($key)
+    {
+        $json = array();
+        $element = $this->storageRepository->loadCompleteElement("tt_content", $key);
+        if ($element["tca"]) {
+            $json["tt_content"]["tca"][] = $element["tca"];
+        }
+        if ($element["sql"]) {
+            $json["tt_content"]["sql"][] = $element["sql"];
+        }
+        unset($element["tca"]);
+        unset($element["sql"]);
+        $json["tt_content"]["elements"][$key] = $element;
+
+        // Return JSON formatted in PHP 5.4.0 and higher
+        if (version_compare(phpversion(), '5.4.0', '<')) {
+            $encodedJson = json_encode($json);
+        } else {
+            $encodedJson = json_encode($json, JSON_PRETTY_PRINT);
+        }
+
+        return $encodedJson;
+    }
 }

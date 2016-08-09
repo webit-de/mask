@@ -148,6 +148,48 @@ class StorageRepository
     }
 
     /**
+     * Load Element with all the field configurations
+     *
+     * @return array
+     */
+    public function loadCompleteElement($type, $key)
+    {
+        $json = $this->load();
+        $fields = array();
+        $elementJson = array();
+        if (count($json[$type]["elements"][$key]["columns"]) > 0) {
+            foreach ($json[$type]["elements"][$key]["columns"] as $fieldName) {
+
+                // collect tca
+                if ($json[$type]["tca"][$fieldName]) {
+                    $fields[$fieldName] = $json[$type]["tca"][$fieldName];
+                }
+
+                // collect sql
+                if ($json[$type]["sql"][$fieldName]) {
+                    $sqlDefinitons[$fieldName] = $json[$type]["sql"][$fieldName];
+                }
+
+                // collect inline table
+                if ($json[$fieldName]) {
+\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($this->loadInlineFields($fieldName));
+                    exit();
+                    $elementJson[$fieldName] = $json[$fieldName];
+                }
+            }
+        }
+
+        if (count($fields) > 0) {
+            $elementJson[$type]["elements"][$key]["tca"] = $fields;
+        }
+        if (count($sqlDefinitons) > 0) {
+            $elementJson[$type]["elements"][$key]["sql"] = $sqlDefinitons;
+        }
+
+        return $elementJson;
+    }
+
+    /**
      * Adds new Content-Element
      *
      * @param array $content
